@@ -44,6 +44,7 @@ set_exception_handler(function (Throwable $exception): void {
 
     /**
      * Unexpected exceptions are logged internally.
+     * Technical details are not exposed to the client.
      */
     error_log((string) $exception);
 
@@ -67,8 +68,8 @@ $pdo = Database::connection();
 /**
  * Repositories.
  *
- * Repositories are responsible for
- * database access and SQL queries.
+ * Repositories are responsible
+ * for database access and SQL queries.
  */
 $patientRepository = new PatientRepository(
     $pdo
@@ -111,8 +112,10 @@ $authService = new AuthService(
 );
 
 /**
- * Handles authorization based on
- * the authenticated user's role.
+ * Authorization service.
+ *
+ * Handles authentication checks
+ * and role-based access control.
  */
 $authorizationService = new AuthorizationService();
 
@@ -120,7 +123,7 @@ $authorizationService = new AuthorizationService();
  * Controllers.
  *
  * Controllers receive HTTP requests,
- * delegate work and return responses.
+ * delegate work, and return JSON responses.
  */
 $appointmentController = new AppointmentController(
     $bookingService,
@@ -139,6 +142,11 @@ $doctorController = new DoctorController(
     $authorizationService
 );
 
+$userController = new UserController(
+    $userService,
+    $authorizationService
+);
+
 $authController = new AuthController(
     $authService
 );
@@ -150,6 +158,6 @@ require __DIR__ . '/../routes/api.php';
 
 /**
  * Dispatch the incoming request
- * after all routes are registered.
+ * after all routes have been registered.
  */
 $router->dispatch($request);

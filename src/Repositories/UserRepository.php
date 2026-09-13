@@ -49,7 +49,7 @@ class UserRepository
     /**
      * Finds a user by email.
      *
-     * This will be used later during login.
+     * Used during login and uniqueness checks.
      */
     public function findByEmail(string $email): ?array
     {
@@ -74,6 +74,26 @@ class UserRepository
         $user = $statement->fetch();
 
         return $user ?: null;
+    }
+
+    /**
+     * Checks whether at least one system user exists.
+     *
+     * This is used during application bootstrap:
+     * the first user may be created without authentication,
+     * but later users require secretary authorization.
+     */
+    public function hasUsers(): bool
+    {
+        $statement = $this->pdo->query(
+            'SELECT EXISTS(
+                SELECT 1
+                FROM users
+                LIMIT 1
+            )'
+        );
+
+        return (bool) $statement->fetchColumn();
     }
 
     /**
@@ -105,6 +125,17 @@ class UserRepository
         $saved = $this->findById(
             (int) $this->pdo->lastInsertId()
         );
+
+        /**
+         * This should normally never happen after
+         * a successful INSERT, but it protects us
+         * from accessing null as an array.
+         */
+        if ($saved === null) {
+            throw new \RuntimeException(
+                'Unable to retrieve created user.'
+            );
+        }
 
         $createdUser = new User(
             id: (int) $saved['id'],

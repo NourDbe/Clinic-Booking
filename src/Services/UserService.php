@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Repositories\UserRepository;
 
 /**
- * Handles user registration logic.
+ * Handles user-related business logic.
  */
 class UserService
 {
@@ -142,5 +142,13 @@ class UserService
                 'Email must not exceed 190 characters.'
             );
         }
+    }
+
+    /**
+     * Checks whether at least one system user exists.
+     */
+    public function hasUsers(): bool
+    {
+        return $this->userRepository->hasUsers();
     }
 }
