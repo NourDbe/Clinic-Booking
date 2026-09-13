@@ -6,27 +6,26 @@ namespace App\Models;
 
 use App\Enums\AppointmentStatus;
 use App\Exceptions\InvalidAppointmentStatusException;
-use App\Abstracts\BaseEntity;
 use App\Traits\HasTimestamps;
 
 /**
  * Represents a clinic appointment.
  *
- * The entity is responsible for protecting its own state
- * and preventing invalid status transitions.
+ * Appointment is not a Person,
+ * so it owns its identifier directly.
  */
-class Appointment extends BaseEntity
+class Appointment
 {
     use HasTimestamps;
+
     public function __construct(
-        ?int $id,
+        private ?int $id,
         private int $patientId,
         private int $doctorId,
         private string $appointmentDate,
         private string $appointmentTime,
         private AppointmentStatus $status
     ) {
-        parent::__construct($id);
     }
 
     public function getId(): ?int
@@ -71,10 +70,11 @@ class Appointment extends BaseEntity
         }
 
         $this->status = AppointmentStatus::CONFIRMED;
+        $this->touch();
     }
 
     /**
-     * Cancels an appointment that is still active.
+     * Cancels an active appointment.
      */
     public function cancel(): void
     {
@@ -91,6 +91,7 @@ class Appointment extends BaseEntity
         }
 
         $this->status = AppointmentStatus::CANCELLED;
+        $this->touch();
     }
 
     /**
@@ -105,11 +106,9 @@ class Appointment extends BaseEntity
         }
 
         $this->status = AppointmentStatus::NO_SHOW;
+        $this->touch();
     }
 
-    /**
-     * Converts the entity to an array suitable for API responses.
-     */
     public function toArray(): array
     {
         return [

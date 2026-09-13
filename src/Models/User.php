@@ -4,29 +4,31 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Abstracts\BaseEntity;
 use App\Enums\UserRole;
 use App\Traits\HasTimestamps;
 
 /**
- * Represents an authenticated user of the clinic system.
+ * Represents an authenticated system user.
  *
- * A user can currently be either:
- * - Secretary
- * - Doctor
+ * User represents an account used to access the system,
+ * not a clinic Person domain abstraction.
  */
-class User extends BaseEntity
+class User
 {
     use HasTimestamps;
 
     public function __construct(
-        ?int $id,
+        private ?int $id,
         private string $name,
         private string $email,
         private string $password,
         private UserRole $role
     ) {
-        parent::__construct($id);
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
     }
 
     public function getName(): string
@@ -41,8 +43,6 @@ class User extends BaseEntity
 
     /**
      * Returns the hashed password.
-     *
-     * The raw password should never be stored.
      */
     public function getPassword(): string
     {
@@ -62,7 +62,7 @@ class User extends BaseEntity
     public function toArray(): array
     {
         return [
-            'id' => $this->getId(),
+            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role->value,

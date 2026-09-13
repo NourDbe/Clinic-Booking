@@ -4,26 +4,22 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Abstracts\BaseEntity;
-use App\Traits\HasTimestamps;
+use App\Abstracts\Person;
 
 /**
- * Represents a patient in the clinic.
+ * Represents a clinic patient.
  */
-class Patient extends BaseEntity
+class Patient extends Person
 {
-    use HasTimestamps;
     public function __construct(
         ?int $id,
-        private string $name,
+        string $name,
         private string $phone
     ) {
-        parent::__construct($id);
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
+        parent::__construct(
+            $id,
+            $name
+        );
     }
 
     public function getPhone(): string
@@ -31,14 +27,11 @@ class Patient extends BaseEntity
         return $this->phone;
     }
 
-    /**
-     * Converts the patient to an array suitable for API responses.
-     */
     public function toArray(): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
+            'id' => $this->getId(),
+            'name' => $this->getName(),
             'phone' => $this->phone,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
