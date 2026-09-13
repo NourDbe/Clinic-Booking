@@ -215,12 +215,10 @@ $router->patch(
  *
  * POST /api/users
  */
-$router->post(
-    '/api/users',
-    function (Request $request) use ($userController): void {
-        $userController->store($request);
-    }
-);
+$router->post('/api/users', function (Request $request) use ($userController) 
+{
+    return $userController->store($request);
+});
 
 /**
  * Login system user.
